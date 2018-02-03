@@ -76,8 +76,7 @@ class Filter extends Component{
     return(
       <div>
         <img/>
-        <input type="text"/>
-        Filter
+        <input type="text" onChange={event => this.props.onTextChange(event.target.value)}/>
       </div>
     );
   }
@@ -88,11 +87,12 @@ class Playlist extends Component{
     return (
       <div style={{color: '#fff', display: 'inline-block', width: '25%'}}>
         <img/>
-        <h3>Playlist Name</h3>
+        <h3>{this.props.playlist.name}</h3>
         <ul>
-          <li>Song 1</li>
-          <li>Song 2</li>
-          <li>Song 3</li>
+          {this.props.playlist.songs.map(song =>
+            <li>{song.name}</li>
+          )}
+          
         </ul>
       </div>
     );
@@ -102,13 +102,19 @@ class Playlist extends Component{
 class App extends Component {
   constructor(){
     super();
-    this.state = {serverData: {}}
+    this.state = {
+      serverData: {},
+      filterString: ''
+    }
   }
   componentDidMount(){
     setTimeout(() =>{
       this.setState({serverData: fakeServerData});
+    },1000);
+    setTimeout(() =>{
+      this.setState({filterString: 'Weekly'});
+      console.log(this.state.filterString);
     },2000);
-    
   }
   render() {
     return (
@@ -120,11 +126,14 @@ class App extends Component {
           <PlaylistCounter playlist={this.state.serverData.user.playlists}/>
           <HoursCounter playlist={this.state.serverData.user.playlists}/>
         
-          <Filter/>
-          <Playlist/>
-          <Playlist/>
-          <Playlist/>
-          <Playlist/>
+          <Filter onTextChange={text => this.setState({filterString : text})}/>
+
+          {this.state.serverData.user.playlists.filter(playlist =>
+            playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+          ).map(playlist => 
+            <Playlist playlist={playlist}/>
+          )}
+          
         </div> : <h1>Loading...</h1>
         }
       </div>
